@@ -1,0 +1,150 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Portfolio
+{% endblock %}
+
+{% block main %}
+
+{% if transactionState =="sold" or transactionState =="bought" %}
+<header>
+
+    <div class=" alert alert-success  mb-1 text-center" role="alert">
+       Successfully {{transactionState}} {{shareNumber}} stocks of {{stock}}!
+    </div>
+
+</header>
+{% elif transactionState == "soldAll"%}
+<header>
+
+    <div class=" alert alert-success  mb-1 text-center" role="alert">
+       Successfully sold all stocks!
+    </div>
+
+</header>
+{% elif transactionState == "addedCash"%}
+<header>
+
+    <div class=" alert alert-success  mb-1 text-center" role="alert">
+       Successfully added {{AddedCashAmount|usd}} to your account!
+    </div>
+
+</header>
+{% elif transactionState == "empty"%}
+<header>
+
+    <div class=" alert alert-warning  mb-1 text-center" role="alert">
+       You have no stocks to sell!
+    </div>
+
+</header>
+{% else %}
+<h1 class="mb-1"> Welcome back, {{username}}</h1>
+{% endif %}
+
+
+<div class="container py-5 text-center">
+
+    <h2>Stock Portfolio</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Symbol</th>
+                <th>Name</th>
+                <th>Shares</th>
+                <th>Avg.Price</th>
+                <th>Price Now (last refreshed)</th>
+
+                <th class=" text-end">Unrealised Gain</th>
+
+                <th class=" text-end">Unrealised Total</th>
+
+                <th colspan="2">Quick Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- TODO: Loop through the database entries to display them in this table -->
+            {% for portfolio in userPortfolio %}
+            <tr>
+                <td>{{ portfolio["stock"]}}</td>
+                <td>{{ portfolio["stock"]}}</td>
+                <td>{{ portfolio["amount"]}}</td>
+                <td >{{ portfolio["avgPrice"] | usd}}</td>
+                <td >{{ portfolio["realtimePrice"] | usd}}</td>
+                {%if portfolio["realisedGain"] > 0 %}
+                <td class=" text-end text-success">
+                {%else%}
+                <td class=" text-end text-danger">
+                {%endif%}
+                {{"%.2f"|format(portfolio["realisedGain"])}}%</td>
+
+
+                <td class="text-end">${{ "%.2f"|format(portfolio["realtimePrice"] *  portfolio["amount"])}}</td>
+
+                <td class="border-0" colspan="1" >
+                    <form action="/buy" method="post">
+                        <input type="hidden"  name="symbol" value="{{portfolio['stock']}}">
+                        <button class="w-25 border-2 rounded border-success" name ="Buy" type="submit">Buy</button>
+                        <button class="w-25 border-2 rounded border-danger" formaction="/sell" name ="sell" type="submit">Sell</button>
+                        <input class="w-25" autocomplete="off" min="1" name="shares" placeholder="Amount" type="number">
+                    </form>
+                </td>
+            </tr>
+
+            {% else %}
+            <tr>
+                <td colspan="8">No record</td>
+            </tr>
+            {% endfor %}
+
+        </tbody>
+
+        <tfoot>
+            <tr>
+                <td class="border-0 fw-bold text-start" colspan="4">Total stock cost:</td>
+                <td class="border-0 " colspan="1">${{totalCost}}</td>
+                <td class="border-0 fw-bold text-end" >Total value:</td>
+                <td class="border-0  text-end">${{"%.2f"|format(totalValue)}}</td>
+
+                <td class="border-0" colspan="1">
+                    <form action="/sellAll" method="post">
+                        <button class="w-75 border-2 rounded border-danger" name ="sellAll" type="submit">Sell All</button>
+                    </form>
+                </td>
+            </tr>
+            <tr>
+
+                <td class="border-0 fw-bold text-end" colspan="6">Cash:</td>
+                <td class="border-0 text-end">${{userCashLeft}}</td>
+
+                <td class="border-0">
+                    <form action="/addCash" method="post">
+                        <button class="w-50 border-2 rounded border-warning" name ="addCash" type="submit">Add Cash</button>
+                        <input class="w-25" autocomplete="off" min="1" name="Amount" placeholder="Amount" type="number">
+                    </form>
+                </td>
+
+            </tr>
+            <tr>
+                <td class=" fw-bold text-start" colspan="4">Overall Performance:</td>
+
+                {%if unrealisedTotalGain > 0 %}
+                <td class=" fw-bold text-success" colspan="1">
+                {%else%}
+                <td class=" fw-bold text-danger" colspan="1">
+                {%endif%}
+                {{unrealisedTotalGain}}%</td>
+
+                <td class=" fw-bold text-end" colspan="1">TOTAL:</td>
+                <td class=" fw-bold text-end">${{ "%.2f"|format(grandTotal)}}</td>
+                <td class=>
+                    <form action="/" method="get">
+                        <button class="w-75 border-2 rounded border-info" type="submit">Refresh</button>
+                    </form>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Quoted
+{% endblock %}
+
+{% block main %}
+<div class="mx-auto w-auto "> 
+
+The market price of {{quoted['name']}} ({{quoted['symbol']}}) is {{quoted['price'] | usd}}.<br>
+
+{% if not isPositiveSell%}
+You curently have {{portAmount}} stocks of {{quoted['name']}}.
+<br>
+{%else%}
+You curently have {{portAmount}} stocks of {{quoted['name']}} at ${{portPrice}}.
+<br>
+{%if isPositiveSell == "TRUE" %}
+Selling {{quoted['name']}} will result in a profit of {{percentageProfit}}%. 
+{%else%}
+Selling {{quoted['name']}} will result in a loss of {{percentageProfit}}%. 
+{%endif%}
+{%endif%}
+</div>
+{% endblock %}

@@ -1,0 +1,93 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    History
+{% endblock %}
+
+{% block main %}
+
+<div class="container py-5 text-center">
+
+    <h2>Transaction Records</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Symbol</th>
+                <th>Name</th>
+                <th>Amount</th>
+                <th>Portfolio Price</th>
+                <th>Action Price</th>
+                <th>Realised Gain</th>
+                <th>Date & time</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- TODO: Loop through the database entries to display them in this table -->
+            {% for record in userRecord %}
+            <tr>               
+                {% if record["stock"] == "Cash" %}
+
+                <td>-</td>
+
+                <td>{{ record["stock"]}}</td>
+                <td>{{ record["amount"]}}</td>
+
+                <td>-</td>
+
+                <td>-</td>
+
+                <td>-</td>
+
+                <td>{{ record["date"]}}</td>
+                <td class="text-warning">CASH</td>
+
+                {% else %}
+
+                <td>{{ record["stock"]}}</td>
+
+                <td>{{ record["stock"]}}</td>
+                <td>{{ record["amount"]}}</td>
+
+                {% if record["holdPrice"] == 0 %}
+                <td>-</td>
+                {%else%}
+                <td>${{ "%.2f"|format(record["holdPrice"])}}</td>
+                {% endif %}
+
+                <td>${{  "%.2f"|format(record["price"])}}</td>
+
+                {%if record["realisedGain"] == 0 %}
+                <td class>
+                {%elif record["realisedGain"] > 0 %} 
+                <td class="text-success">
+                {%else%}
+                <td class="text-danger">
+                {% endif %}   
+                {{ "%.2f"|format(record["realisedGain"])}}%</td>     
+
+                <td>{{ record["date"]}}</td>
+
+                {%if record["action"] =="BUY" %}
+                <td class="text-success"> 
+                {%else%}
+                <td class="text-danger">
+                {%endif%}
+                {{ record["action"]}}</td>
+
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td class="fw-bold text-start" colspan="3">Net tade volume:</td>
+                <td class="fw-bold text-end">{{ totalTradeVolume|usd}}</td>
+                <td class="fw-bold text-start" colspan="3">Net Profit:</td>
+                <td class="fw-bold text-end">{{ netProfit|usd}}</td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+{% endblock %}
